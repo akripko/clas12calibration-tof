@@ -55,6 +55,8 @@ public class TofTWPosEventListener extends TOFCalibrationEngine {
 	int backgroundSF = -1;
 	boolean showSlices = false;
 
+	private boolean[][][] isFitValid = new boolean[6][3][62];
+
 	public TofTWPosEventListener() {
 
 		stepName = "TW position";
@@ -311,6 +313,7 @@ public class TofTWPosEventListener extends TOFCalibrationEngine {
 
 		try {
 			DataFitter.fit(twposFunc, twposGraph, fitOption);
+			this.isFitValid[sector-1][layer-1][paddle-1] = twposFunc.isFitValid();
 
 		} catch (Exception e) {
 			System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -462,7 +465,8 @@ public class TofTWPosEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return true;
+		return this.isFitValid[sector-1][layer-1][paddle-1];
+				//true;
 
 	}
 

@@ -48,9 +48,9 @@ public class TofTimeWalkEventListener extends TOFCalibrationEngine {
 	private final double[]        ENERGY_MAX = {0.0, 50.0, 50.0, 50.0};
 	
 	// Expected values for colour coding
-	private final double[] EXPECTED_TW1 = {1.5, 1.5, 1.5};
+	/*private final double[] EXPECTED_TW1 = {1.5, 1.5, 1.5};
 	private final double[] EXPECTED_TW2 = {-0.03, -0.03, -0.03};
-	private final double[] EXPECTED_TW3 = {3.8, 3.8, 3.8};
+	private final double[] EXPECTED_TW3 = {3.8, 3.8, 3.8};*/
 	
 	// Preferred bins
 	private int[] xbins = {0, 166, 87, 166};
@@ -67,6 +67,8 @@ public class TofTimeWalkEventListener extends TOFCalibrationEngine {
 	private String fitOption = "RQ";
 	int backgroundSF = 2;
 	boolean showSlices = false;
+
+	private boolean[][][] isFitValid = new boolean[6][3][62];
 	
 	public TofTimeWalkEventListener() {
 		
@@ -437,6 +439,7 @@ public class TofTimeWalkEventListener extends TOFCalibrationEngine {
                 twLFunc.setParLimits(1, fitTW0-fitTW0range, fitTW0+fitTW0range);
 		try {
 			DataFitter.fit(twLFunc, twLGraph, fitOption);
+			this.isFitValid[sector-1][layer-1][paddle-1] = twLFunc.isFitValid();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -825,7 +828,8 @@ public class TofTimeWalkEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return true;
+		//return true;
+		return (this.isFitValid[sector-1][layer-1][paddle-1]);
 //				(getTW0(sector,layer,paddle) >= EXPECTED_TW0[layer-1]*0.9  && 
 //				getTW0(sector,layer,paddle) <= EXPECTED_TW0[layer-1]*1.1 &&
 //				getTW1(sector,layer,paddle) >= EXPECTED_TW1[layer-1]*0.9  && 

@@ -42,7 +42,7 @@ public class TofFadcEventListener extends TOFCalibrationEngine {
 	public double	MAX_X = 60.0;
 	public double	WIDTH = 10.0;
 	
-	private String fitOption = "RQ";	
+	//private String fitOption = "RQ";	
 
 	public TofFadcEventListener() {
 

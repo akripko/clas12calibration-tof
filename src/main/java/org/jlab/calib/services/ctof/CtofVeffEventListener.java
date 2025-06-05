@@ -65,6 +65,8 @@ public class CtofVeffEventListener extends CTOFCalibrationEngine {
     int backgroundSF = -1;
     boolean showSlices = false;
 
+	private boolean[] isFitValid = new boolean[48];
+
     public CtofVeffEventListener() {
 
         stepName = "Effective Velocity";
@@ -315,6 +317,7 @@ public class CtofVeffEventListener extends CTOFCalibrationEngine {
         //        veffFunc.setParLimits(1, 1.0/20.0, 1.0/12.0);
         try {
             DataFitter.fit(veffFunc, veffGraph, fitOption);
+			this.isFitValid[paddle-1] = veffFunc.isFitValid();
 
         } catch (Exception e) {
             System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -511,7 +514,9 @@ public class CtofVeffEventListener extends CTOFCalibrationEngine {
     @Override
     public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-        return (getVeff(sector,layer,paddle) >= MIN_VEFF
+        return (this.isFitValid[paddle-1]
+                &&
+                getVeff(sector,layer,paddle) >= MIN_VEFF
                 &&
                 getVeff(sector,layer,paddle) <= MAX_VEFF);
 

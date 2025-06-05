@@ -32,7 +32,7 @@ public class TofP2PEventListener extends TOFCalibrationEngine {
 
 	final double MAX_OFFSET = 30.0;
 
-	private String showPlotType = "VERTEX_DT";
+	//private String showPlotType = "VERTEX_DT";
 
 	public TofP2PEventListener() {
 

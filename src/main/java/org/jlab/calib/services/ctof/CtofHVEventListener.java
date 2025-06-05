@@ -66,6 +66,8 @@ public class CtofHVEventListener extends CTOFCalibrationEngine {
 
 	private String statusFileName = "";
 
+	private boolean[] isFitValid = new boolean[48];
+
 	public CtofHVEventListener() {
 
 		stepName = "HV";
@@ -287,6 +289,7 @@ public class CtofHVEventListener extends CTOFCalibrationEngine {
 
 		try {    
 			DataFitter.fit(gmFunc, h, "RQ");
+			this.isFitValid[paddle-1] = gmFunc.isFitValid();
 
 		} catch (Exception e) {
 			System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -722,7 +725,9 @@ public class CtofHVEventListener extends CTOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getMipChannel(sector,layer,paddle) >= CTOFCalibration.expectedMipChannel-ALLOWED_MIP_DIFF
+		return (this.isFitValid[paddle-1]
+				&&
+				getMipChannel(sector,layer,paddle) >= CTOFCalibration.expectedMipChannel-ALLOWED_MIP_DIFF
 				&&
 				getMipChannel(sector,layer,paddle) <= CTOFCalibration.expectedMipChannel+ALLOWED_MIP_DIFF);
 

@@ -66,6 +66,8 @@ public class TofTdcConvEventListener extends TOFCalibrationEngine {
 	double        FIT_MIN = 0.0;
 	double        FIT_MAX = 0.0;
 
+	private boolean[][][][] isFitValid = new boolean[2][6][3][62];
+
     public TofTdcConvEventListener() {
 
         stepName = "TDC - Time";
@@ -363,6 +365,7 @@ public class TofTdcConvEventListener extends TOFCalibrationEngine {
         convFuncLeft.setParameter(1, 0.0);
         try {
             DataFitter.fit(convFuncLeft, convGraphLeft, fitOption);
+			this.isFitValid[0][sector-1][layer-1][paddle-1] = convFuncLeft.isFitValid();
         } catch (Exception e) {
             System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
             e.printStackTrace();
@@ -375,6 +378,7 @@ public class TofTdcConvEventListener extends TOFCalibrationEngine {
         convFuncRight.setParameter(1, 0.0);
         try {
             DataFitter.fit(convFuncRight, convGraphRight, fitOption);
+			this.isFitValid[1][sector-1][layer-1][paddle-1] = convFuncRight.isFitValid();
         } catch (Exception e) {
             System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
             e.printStackTrace();
@@ -493,7 +497,11 @@ public class TofTdcConvEventListener extends TOFCalibrationEngine {
     @Override
     public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-        return (getConvLeft(sector,layer,paddle) >= EXPECTED_CONV*(1-ALLOWED_DIFF)
+        return (this.isFitValid[0][sector-1][layer-1][paddle-1]
+                &&
+                this.isFitValid[1][sector-1][layer-1][paddle-1]
+                &&
+                getConvLeft(sector,layer,paddle) >= EXPECTED_CONV*(1-ALLOWED_DIFF)
                 &&
                 getConvLeft(sector,layer,paddle) <= EXPECTED_CONV*(1+ALLOWED_DIFF)
                 &&

@@ -55,7 +55,7 @@ public class TofHVEventListener extends TOFCalibrationEngine {
 	private final double[]		GM_HIST_MAX = {4000.0,4000.0,4000.0};
 	private final int[]			GM_HIST_BINS = {160, 160, 160};
 	private final double 		LR_THRESHOLD_FRACTION = 0.2;
-	private final int			GM_REBIN_THRESHOLD = 50000;
+	//private final int			GM_REBIN_THRESHOLD = 50000;
 
 	private final double[]        FIT_MIN = {300.0, 300.0, 150.0};
 	private final double[]        FIT_MAX = {1500.0, 1500.0, 1300.0};
@@ -74,6 +74,8 @@ public class TofHVEventListener extends TOFCalibrationEngine {
 	private String showPlotType = "GEOMEAN";
 	
 	private String statusFileName = "";
+
+	private boolean[][][] isFitValid = new boolean[6][3][62];
 
 	public TofHVEventListener() {
 
@@ -398,6 +400,7 @@ public class TofHVEventListener extends TOFCalibrationEngine {
 
 		try {	
 			DataFitter.fit(gmFunc, h, "RQ");
+			this.isFitValid[sector-1][layer-1][paddle-1] = gmFunc.isFitValid();
 
 		} catch (Exception e) {
 			System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -854,7 +857,9 @@ public class TofHVEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getMipChannel(sector,layer,paddle) >= EXPECTED_MIP_CHANNEL[layer-1]-ALLOWED_MIP_DIFF
+		return (this.isFitValid[sector-1][layer-1][paddle-1]
+				&&
+				getMipChannel(sector,layer,paddle) >= EXPECTED_MIP_CHANNEL[layer-1]-ALLOWED_MIP_DIFF
 				&&
 				getMipChannel(sector,layer,paddle) <= EXPECTED_MIP_CHANNEL[layer-1]+ALLOWED_MIP_DIFF);
 

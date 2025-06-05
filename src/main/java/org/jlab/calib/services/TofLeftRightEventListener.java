@@ -57,6 +57,8 @@ public class TofLeftRightEventListener extends TOFCalibrationEngine {
 	final double MAX_LEFTRIGHT = 10.0;
 	private String fitOption = "RQ";
 
+	private boolean[][][] isFitValid = new boolean[6][3][62];
+
 	public TofLeftRightEventListener() {
 
 		stepName = "Left Right";
@@ -270,6 +272,7 @@ public class TofLeftRightEventListener extends TOFCalibrationEngine {
 		if (lrHist.getEntries() > 50) {
 			try {
 				DataFitter.fit(lrFunc, lrHist, fitOption);
+				this.isFitValid[sector-1][layer-1][paddle-1] = lrFunc.isFitValid();
 			}
 			catch(Exception ex) {
 				ex.printStackTrace();
@@ -440,7 +443,9 @@ public class TofLeftRightEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getCentroid(sector,layer,paddle) >= -MAX_LEFTRIGHT
+		return (this.isFitValid[sector-1][layer-1][paddle-1]
+				&&
+				getCentroid(sector,layer,paddle) >= -MAX_LEFTRIGHT
 				&&
 				getCentroid(sector,layer,paddle) <= MAX_LEFTRIGHT);
 	}

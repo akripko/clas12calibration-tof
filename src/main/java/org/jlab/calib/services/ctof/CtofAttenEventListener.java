@@ -63,6 +63,8 @@ public class CtofAttenEventListener extends CTOFCalibrationEngine {
 	int backgroundSF = -1;
 	boolean showSlices = false;
 
+	private boolean[] isFitValid = new boolean[48];
+
 	public CtofAttenEventListener() {
 
 		stepName = "Attenuation Length";
@@ -257,10 +259,12 @@ public class CtofAttenEventListener extends CTOFCalibrationEngine {
 		attenFunc.setParLimits(1, 2.0/500.0, 2.0/10.0);
 		if (sector==1 && layer==1 &&paddle==8) {
 			DataFitter.fit(attenFunc, meanGraph, fitOption);
+			this.isFitValid[paddle-1] = attenFunc.isFitValid();
 
 		}
 		else {
 			DataFitter.fit(attenFunc, meanGraph, fitOption);
+			this.isFitValid[paddle-1] = attenFunc.isFitValid();
 		}
 
 		// LC Mar 2020 Set function parameters to override value
@@ -416,7 +420,7 @@ public class CtofAttenEventListener extends CTOFCalibrationEngine {
 		double attlen = getAttlen(sector,layer,paddle);
 		double expAttlen = expectedAttlen(sector,layer,paddle);
 
-		return (attlen >= (0.8*expAttlen)) && (attlen <= (1.2*expAttlen));
+		return (this.isFitValid[paddle-1] && attlen >= (0.8*expAttlen)) && (attlen <= (1.2*expAttlen));
 
 	}
 

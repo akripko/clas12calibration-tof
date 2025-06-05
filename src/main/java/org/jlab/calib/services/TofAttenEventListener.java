@@ -57,9 +57,11 @@ public class TofAttenEventListener extends TOFCalibrationEngine {
 	public final int ATTEN_UNC_OVERRIDE = 1;
 	public final int OFFSET_OVERRIDE = 2;
 	
-	private String fitOption = "RQ";
+	//private String fitOption = "RQ";
 	int backgroundSF = -1;
 	boolean showSlices = false;
+
+	private boolean[][][] isFitValid = new boolean[6][3][62];
 
 	public TofAttenEventListener() {
 
@@ -252,10 +254,11 @@ public class TofAttenEventListener extends TOFCalibrationEngine {
 		attenFunc.setParLimits(1, 2.0/500.0, 2.0/10.0);
 		if (sector==1 && layer==1 &&paddle==8) {
 			DataFitter.fit(attenFunc, meanGraph, "RNQ");
-
+			this.isFitValid[sector-1][layer-1][paddle-1] = attenFunc.isFitValid();
 		}
 		else {
 			DataFitter.fit(attenFunc, meanGraph, "RNQ");
+			this.isFitValid[sector-1][layer-1][paddle-1] = attenFunc.isFitValid();
 		}
 		
 		// LC Mar 2020 Set function parameters to override value
@@ -433,7 +436,7 @@ public class TofAttenEventListener extends TOFCalibrationEngine {
 		double attlen = getAttlen(sector,layer,paddle);
 		double expAttlen = expectedAttlen(sector,layer,paddle);
 
-		return (attlen >= (0.8*expAttlen)) && (attlen <= (1.2*expAttlen));
+		return (attlen >= (0.8*expAttlen)) && (attlen <= (1.2*expAttlen) && this.isFitValid[sector-1][layer-1][paddle-1]);
 
 	}
 

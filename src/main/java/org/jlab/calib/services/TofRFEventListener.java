@@ -23,6 +23,8 @@ public class TofRFEventListener extends TOFCalibrationEngine {
 
 	final double MAX_OFFSET = 10.0;
 
+	private boolean[][][] isFitValid = new boolean[6][3][62];
+
 	public TofRFEventListener() {
 
 		stepName = "RF";
@@ -164,6 +166,7 @@ public class TofRFEventListener extends TOFCalibrationEngine {
 
 		try {
 			DataFitter.fit(fineFunc, fineHist, "RQ");
+			this.isFitValid[sector-1][layer-1][paddle-1] = fineFunc.isFitValid();
 			fineHist.setTitle(fineHist.getTitle() + " Fine offset = " + formatDouble(fineFunc.getParameter(1)));
 		}
 		catch(Exception ex) {
@@ -251,7 +254,9 @@ public class TofRFEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getOffset(sector,layer,paddle) >= -MAX_OFFSET
+		return (this.isFitValid[sector-1][layer-1][paddle-1]
+				&&
+				getOffset(sector,layer,paddle) >= -MAX_OFFSET
 				&&
 				getOffset(sector,layer,paddle) <= MAX_OFFSET);
 

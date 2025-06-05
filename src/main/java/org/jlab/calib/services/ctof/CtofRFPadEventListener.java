@@ -42,6 +42,8 @@ public class CtofRFPadEventListener extends CTOFCalibrationEngine {
 	private final double MIN_SIGMA = 0.064;
 	private final double MAX_SIGMA = 0.096;
 
+	private boolean[] isFitValid = new boolean[48];
+
 	public CtofRFPadEventListener() {
 
 		stepName = "RF paddle";
@@ -271,6 +273,7 @@ public class CtofRFPadEventListener extends CTOFCalibrationEngine {
 
 		try {
 			DataFitter.fit(fineFunc, fineHist, fitOption);
+			this.isFitValid[paddle-1] = fineFunc.isFitValid();
 			//fineHist.setTitle(fineHist.getTitle() + " Fine offset = " + formatDouble(fineFunc.getParameter(1)));
 		}
 		catch(Exception ex) {
@@ -424,7 +427,9 @@ public class CtofRFPadEventListener extends CTOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getSigma(sector,layer,paddle) >= MIN_SIGMA
+		return (this.isFitValid[paddle-1]
+				&&
+				getSigma(sector,layer,paddle) >= MIN_SIGMA
 				&&
 				getSigma(sector,layer,paddle) <= MAX_SIGMA);
 

@@ -62,6 +62,8 @@ public class TofVeffEventListener extends TOFCalibrationEngine {
 	int backgroundSF = -1;
 	boolean showSlices = false;
 
+	private boolean[][][] isFitValid = new boolean[6][3][62];
+
 	public TofVeffEventListener() {
 
 		stepName = "Effective Velocity";
@@ -320,6 +322,7 @@ public class TofVeffEventListener extends TOFCalibrationEngine {
 		veffFunc.setParameter(1, 1.0/16.0);
 		try {
 			DataFitter.fit(veffFunc, veffGraph, fitOption);
+			this.isFitValid[sector-1][layer-1][paddle-1] = veffFunc.isFitValid();
 
 		} catch (Exception e) {
 			System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -522,7 +525,9 @@ public class TofVeffEventListener extends TOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return (getVeff(sector,layer,paddle) >= EXPECTED_VEFF*(1-ALLOWED_VEFF_DIFF)
+		return (this.isFitValid[sector-1][layer-1][paddle-1]
+				&&
+				getVeff(sector,layer,paddle) >= EXPECTED_VEFF*(1-ALLOWED_VEFF_DIFF)
 				&&
 				getVeff(sector,layer,paddle) <= EXPECTED_VEFF*(1+ALLOWED_VEFF_DIFF));
 

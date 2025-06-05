@@ -62,6 +62,8 @@ public class CtofLeftRightEventListener extends CTOFCalibrationEngine {
     final double MAX_LEFTRIGHT = -20.0;
     private String fitOption = "RQ";
 
+	private boolean[] isFitValid = new boolean[48];
+
     public CtofLeftRightEventListener() {
 
         stepName = "Up Down";
@@ -275,6 +277,7 @@ public class CtofLeftRightEventListener extends CTOFCalibrationEngine {
 		if (lrHist.getEntries() > 50) {
 			try {
 				DataFitter.fit(lrFunc, lrHist, fitOption);
+                this.isFitValid[paddle-1] = lrFunc.isFitValid();
 			}
 			catch(Exception ex) {
 				ex.printStackTrace();
@@ -418,7 +421,9 @@ public class CtofLeftRightEventListener extends CTOFCalibrationEngine {
     @Override
     public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-        return (getCentroid(sector,layer,paddle) >= MIN_LEFTRIGHT
+        return (this.isFitValid[paddle-1]
+                &&
+                getCentroid(sector,layer,paddle) >= MIN_LEFTRIGHT
                 &&
                 getCentroid(sector,layer,paddle) <= MAX_LEFTRIGHT);
     }

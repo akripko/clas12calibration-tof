@@ -58,6 +58,8 @@ public class CtofHPosEventListener extends CTOFCalibrationEngine {
 	int backgroundSF = -1;
 	boolean showSlices = false;
 
+	private boolean[] isFitValid = new boolean[48];
+
 	public CtofHPosEventListener() {
 
 		stepName = "HPOS(Function)";
@@ -313,6 +315,7 @@ public class CtofHPosEventListener extends CTOFCalibrationEngine {
 
 		try {
 			DataFitter.fit(hposFunc, hposGraph, fitOption);
+			this.isFitValid[paddle-1] = hposFunc.isFitValid();
 
 		} catch (Exception e) {
 			System.out.println("Fit error with sector "+sector+" layer "+layer+" paddle "+paddle);
@@ -429,7 +432,7 @@ public class CtofHPosEventListener extends CTOFCalibrationEngine {
 	@Override
 	public boolean isGoodPaddle(int sector, int layer, int paddle) {
 
-		return true;
+		return this.isFitValid[paddle-1]/*true*/;
 
 	}
 
